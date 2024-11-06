@@ -58,17 +58,25 @@
             gap: 10px;
         }
         .avatar {
-            width: 50px;
-            height: 50px;
+            width: 80px;  /* Increased from 50px */
+            height: 80px; /* Increased from 50px */
             margin-right: 1rem;
             border-radius: 4px;
             background: linear-gradient(135deg, #ff6b6b 25%, #f0f0f0 25%, #f0f0f0 50%, #ff6b6b 50%, #ff6b6b 75%, #f0f0f0 75%);
             background-size: 8px 8px;
             overflow: hidden;
+            position: relative;
+        }
+        .avatar.has-image {
+            background: transparent;
         }
         .avatar img {
-            width: 100%;
-            height: 100%;
+            width: 120%;  /* Enlarged from 100% */
+            height: auto;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
             object-fit: cover;
         }
         .name {
@@ -133,6 +141,14 @@
             display: none;
             margin-left: 10px;
         }
+        /* Add hover effect for avatars in admin mode */
+        .avatar.admin-mode {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .avatar.admin-mode:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body>
@@ -144,11 +160,11 @@
         </div>
     </div>
     <div class="leaderboard">
-        <!-- First three players with special ranks -->
+        <!-- First player as example -->
         <div class="player-row">
             <div class="rank rank-1">1</div>
             <div class="player-info">
-                <div class="avatar" data-player="1"><img src="/api/placeholder/50/50" alt="player"></div>
+                <div class="avatar" data-player="1"><img src="/api/placeholder/80/80" alt="player"></div>
                 <span class="name" data-editable="true">ItzRealMe</span>
                 <span class="region na">NA</span>
                 <span class="score" data-editable="true">300</span>
@@ -156,49 +172,6 @@
                     <span class="badge ht">HT4</span>
                     <span class="badge rht">RHT1</span>
                     <span class="badge rht">RHT1</span>
-                </div>
-            </div>
-        </div>
-        <!-- Remaining players (just showing first few for brevity) -->
-        <div class="player-row">
-            <div class="rank rank-2">2</div>
-            <div class="player-info">
-                <div class="avatar" data-player="2"><img src="/api/placeholder/50/50" alt="player"></div>
-                <span class="name" data-editable="true">Marlowww</span>
-                <span class="region na">NA</span>
-                <span class="score" data-editable="true">268</span>
-                <div class="badges">
-                    <span class="badge ht">HT1</span>
-                    <span class="badge ht">HT1</span>
-                    <span class="badge lt">LT1</span>
-                </div>
-            </div>
-        </div>
-        <div class="player-row">
-            <div class="rank rank-3">3</div>
-            <div class="player-info">
-                <div class="avatar" data-player="3"><img src="/api/placeholder/50/50" alt="player"></div>
-                <span class="name" data-editable="true">Swight</span>
-                <span class="region na">NA</span>
-                <span class="score" data-editable="true">226</span>
-                <div class="badges">
-                    <span class="badge ht">HT1</span>
-                    <span class="badge lt">LT1</span>
-                    <span class="badge lt">LT2</span>
-                </div>
-            </div>
-        </div>
-        <div class="player-row">
-            <div class="rank rank-other">4</div>
-            <div class="player-info">
-                <div class="avatar" data-player="4"><img src="/api/placeholder/50/50" alt="player"></div>
-                <span class="name" data-editable="true">coldified</span>
-                <span class="region eu">EU</span>
-                <span class="score" data-editable="true">190</span>
-                <div class="badges">
-                    <span class="badge ht">HT3</span>
-                    <span class="badge lt">LT3</span>
-                    <span class="badge lt">LT3</span>
                 </div>
             </div>
         </div>
@@ -225,7 +198,7 @@
                 
                 // Make avatars clickable for upload
                 avatars.forEach(avatar => {
-                    avatar.style.cursor = 'pointer';
+                    avatar.classList.add('admin-mode');
                     avatar.addEventListener('click', () => triggerFileUpload(avatar.dataset.player));
                 });
                 
@@ -243,7 +216,7 @@
                 
                 // Remove clickable avatars
                 avatars.forEach(avatar => {
-                    avatar.style.cursor = 'default';
+                    avatar.classList.remove('admin-mode');
                 });
             }
         }
@@ -261,8 +234,10 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const avatar = document.querySelector(`.avatar[data-player="${playerId}"] img`);
-                    avatar.src = e.target.result;
+                    const avatarContainer = document.querySelector(`.avatar[data-player="${playerId}"]`);
+                    const avatarImg = avatarContainer.querySelector('img');
+                    avatarImg.src = e.target.result;
+                    avatarContainer.classList.add('has-image'); // Add class to make background transparent
                 };
                 reader.readAsDataURL(file);
             }
